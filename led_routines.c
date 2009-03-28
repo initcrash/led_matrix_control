@@ -29,6 +29,8 @@ static uint16_t charGetStart(char c);
 /* Diese Arrays werden nur zur Uebertragung ans Modul genutzt */
 static uint16_t RED[4][16];
 static uint16_t GREEN[4][16];
+static uint16_t tmpRED[4][16];
+static uint16_t tmpGREEN[4][16];
 
 /* Dies sind die eigentlich genutzten Arrays. Grund: 
  * einfachere Handhabung! Jedes Element entspricht genau einer Spalte
@@ -43,11 +45,17 @@ static uint16_t x,y=1;
 void updateDisplay(int client_sock)
 {
 	int bytes_send;
-	bytes_send = send(client_sock, &RED, sizeof(RED),0);
-	bytes_send = send(client_sock, &GREEN, sizeof(GREEN),0);
+	int x,y,z;
+	memset(tmpGREEN,0,sizeof(uint16_t)*4*16);
+	memset(tmpRED,0,sizeof(uint16_t)*4*16);
 
+	for (x=0;x<4;x++) for (y=0;y<16;y++) for (z=0;z<16;z++){
+	    tmpGREEN[x][y] |= ((GREEN[3-x][15-y] & (1 << z)) >> z) << (15-z);
+	    tmpRED[x][y] |= ((RED[3-x][15-y] & (1 << z)) >> z) << (15-z);
+	}
+	bytes_send = send(client_sock, tmpRED, sizeof(RED),0);
+	bytes_send = send(client_sock, tmpGREEN, sizeof(GREEN),0);
 }
-
 /* Achtung, funktioniert derzeit nur fuer Arial_Bold_14 ! */
 static uint16_t charGetStart(char c)
 {
