@@ -29,7 +29,7 @@
 #include "main.h"
 #include "led_routines.h"
 
-#define LMS_IP "192.168.0.93"
+#define LMS_IP "192.168.2.10"
 #define LMS_PORT 9328
 
 static int client_sock;
